@@ -4,7 +4,7 @@ import crawler_jobSearch as cj
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
-def poker():
+def search():
     if request.method == 'GET':
         outStr = """
         <html>

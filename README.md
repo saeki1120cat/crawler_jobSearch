@@ -11,3 +11,5 @@ Nowadays, job search information are huge and change rapidly. It is always effec
 * Pandas
 * beautifulsoup4
 * requests
+* flask
+* linebot

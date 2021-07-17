@@ -1,9 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-import time
-import random
-import concurrent.futures
 import pandas as pd
 
 def seek_104(url):
@@ -16,7 +13,6 @@ def seek_104(url):
     job_desc = []
     location = []
 
-    sleep_time = random.random()
     ua = UserAgent()
     headers = {'User-Agent': ua.random}
 
@@ -65,8 +61,6 @@ def seek_104(url):
     df = df.append(pd.DataFrame(data_dict))
     indexNames = df[ df['職稱'] == '-' ].index
     df.drop(indexNames , inplace=True)
-    time.sleep(sleep_time)
-    return df
 
 
 def seek_1111(url):
@@ -79,7 +73,6 @@ def seek_1111(url):
     link = []
     job_desc = []
 
-    sleep_time = random.random()
     ua = UserAgent()
     headers = {'User-Agent': ua.random}
 
@@ -94,7 +87,7 @@ def seek_1111(url):
             title.append('-')
 
         try:
-            link.append('https:' + job.find('a').get('href'))
+            link.append(job.find('a').get('href'))
         except:
             link.append('-')
 
@@ -127,8 +120,6 @@ def seek_1111(url):
     data_dict = {"刊登日期": date, "職稱": title, "公司名稱": company, "公司地點": location, "描述": job_desc, "薪資": salary,
                  "webURL": link}
     df = df.append(pd.DataFrame(data_dict))
-    time.sleep(sleep_time)
-    return df
 
 
 def seek_cakeresume(url):
@@ -140,9 +131,6 @@ def seek_cakeresume(url):
     date = []
     location = []
     salary = []
-
-    sleep_time = random.random()
-    df = pd.DataFrame()
 
     ua = UserAgent()
     headers = {'User-Agent': ua.random}
@@ -192,33 +180,21 @@ def seek_cakeresume(url):
     data_dict = {"刊登日期": date, "職稱": title, "公司名稱": company, "公司地點": location, "描述": job_desc, "薪資": salary,
                  "webURL": link}
     df = df.append(pd.DataFrame(data_dict))
-    time.sleep(sleep_time)
-    return df
 
-def main(web, keyword, end_page):
+def main(web, keyword):
     global df, urls
     df = pd.DataFrame()
     if web =='104':
-        urls = [f'https://www.104.com.tw/jobs/search/?keyword={keyword}&order=11&asc=0&page={str(i)}&mode=s' for i in range(1,end_page+1)]
+        urls = f'https://www.104.com.tw/jobs/search/?keyword={keyword}&order=11&asc=0&page=1&mode=s'
     elif web =='cakeresume':
-        urls = [f'https://www.cakeresume.com/jobs?q={keyword}&refinementList%5Border%5D=latest&page={str(i)}' for i in range(1,end_page+1)]
+        urls = f'https://www.cakeresume.com/jobs?q={keyword}&refinementList%5Border%5D=latest&page=1'
     elif web =='1111':
-        urls = [f'https://www.1111.com.tw/search/job?ks={keyword}&fs=1&page={str(i)}&col=da&sort=desc' for i in range(1,end_page+1)]
+        urls = f'https://www.1111.com.tw/search/job?ks={keyword}&fs=1&page=1&col=da&sort=desc'
 
-
-# 執行爬蟲並進行多工處理
 def crawler_jobSearch(web):
     if web == '104':
-        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            executor.map(seek_104, urls)
-
+        seek_104(urls)
     elif web == 'cakeresume':
-        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            executor.map(seek_cakeresume, urls)
-
+        seek_cakeresume(urls)
     elif web == '1111':
-        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            executor.map(seek_1111, urls)
-
-
-
+        seek_1111(urls)
